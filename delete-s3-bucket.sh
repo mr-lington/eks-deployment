@@ -1,20 +1,14 @@
 #!/bin/bash
 
-echo "deleting jenkins and vault server"
-cd vault-jenkins
+echo "deleting cluster"
+cd netwoking
 terraform init 
 terraform destroy -auto-approve
 
-echo "creating S3 bucket"
-
-# # Using the same variables as ones used for creation
-# BUCKET_NAME="pet-adoption-state-bucket-1"
-# AWS_REGION="eu-west-1"
-# AWS_PROFILE="pet-adoption"
 
 # Using the same variables as ones used for creation
 BUCKET_NAME="eks-statefile-bucket1"
-AWS_REGION="eu-west-2"
+AWS_REGION="eu-west-3"
 AWS_PROFILE="Lington"
 
 echo "Deleting all objects in $BUCKET_NAME. This process is irreversible..."

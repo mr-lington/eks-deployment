@@ -2,7 +2,7 @@
 
 # set variable for bucket-name
 BUCKET_NAME="eks-statefile-bucket1"
-AWS_REGION="eu-west-2"
+AWS_REGION="eu-west-3"
 AWS_PROFILE="Lington"
 
 
@@ -15,8 +15,9 @@ aws s3api create-bucket --bucket "$BUCKET_NAME" --region "$AWS_REGION" --profile
 aws s3api put-bucket-versioning --bucket "$BUCKET_NAME" --region "$AWS_REGION" --profile "$AWS_PROFILE" \
   --versioning-configuration Status=Enabled
 
-echo "Creating Jenkins Server"
-cd jenkins
-terraform init 
+echo "Creating Cluster"
+cd netwoking
+terraform init
+terraform fmt 
 terraform validate
 terraform apply -auto-approve

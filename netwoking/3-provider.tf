@@ -1,7 +1,7 @@
 provider "aws" {
   region  = local.region
   profile = "Lington"
-}  
+}
 
 
 terraform {
@@ -12,5 +12,16 @@ terraform {
     region       = "eu-west-3"
     encrypt      = true
     profile      = "Lington"
+  }
+}
+
+terraform {
+  required_version = ">= 1.5.7"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 6.15"
+    }
   }
 }
