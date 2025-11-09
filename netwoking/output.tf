@@ -1,12 +1,12 @@
-# output "cluster_name" {
-#   value = aws_eks_cluster.eks.name
-# }
-# output "cluster_endpoint" {
-#   value = aws_eks_cluster.eks.endpoint
-# }
-# output "cluster_ca" {
-#   value = aws_eks_cluster.eks.certificate_authority[0].data
-# }
-# # output "efs_id" {
-# #   value = aws_efs_file_system.efs.id
-# # } 
+output "cluster_name" {
+  value = module.eks_al2023.cluster_name
+}
+output "cluster_endpoint" {
+  value = module.eks_al2023.cluster_endpoint
+}
+output "cluster_ca" {
+  value = module.eks_al2023.cluster_certificate_authority_data
+}
+# output "efs_id" {
+#   value = aws_efs_file_system.efs.id
+# } 

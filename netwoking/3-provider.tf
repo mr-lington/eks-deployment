@@ -1,6 +1,68 @@
+# provider "aws" {
+#   region  = local.region
+#   profile = "Lington"
+# }
+
+
+# terraform {
+#   backend "s3" {
+#     bucket       = "eks-statefile-bucket1"
+#     use_lockfile = true
+#     key          = "cluster/terraform.tfstate"
+#     region       = "eu-west-3"
+#     encrypt      = true
+#     profile      = "Lington"
+#   }
+# }
+
+# terraform {
+#   required_version = ">= 1.5.7"
+
+#   required_providers {
+#     aws = {
+#       source  = "hashicorp/aws"
+#       version = ">= 6.15"
+#     }
+#   }
+# }
+
+
+
+
+variable "aws_profile" {
+  type    = string
+  default = "Lington"
+}
+
+variable "sso_home_region" {
+  type    = string
+  default = "eu-west-3"
+}
+
+# Default AWS provider (used by VPC, modules, IAM, SSO roles)
 provider "aws" {
-  region  = local.region
-  profile = "Lington"
+  region  = var.sso_home_region
+  profile = var.aws_profile
+}
+
+# SSO Provider (used for SSO resources)
+provider "aws" {
+  alias   = "sso"
+  region  = var.sso_home_region
+  profile = var.aws_profile
+}
+
+# EKS Provider (use same region as cluster)
+provider "aws" {
+  alias   = "eks"
+  region  = var.sso_home_region
+  profile = var.aws_profile
+}
+
+# Namespaces that Developers can view in EKS
+variable "developer_namespaces" {
+  type    = list(string)
+  default = ["prod-backend", "prod-frontend", "prod-data"]
 }
 
 
@@ -13,15 +75,21 @@ terraform {
     encrypt      = true
     profile      = "Lington"
   }
-}
 
-terraform {
   required_version = ">= 1.5.7"
 
   required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = ">= 6.15"
+    }
+    external = {
+      source  = "hashicorp/external"
+      version = ">= 2.2"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = ">= 0.9"
     }
   }
 }
