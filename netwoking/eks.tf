@@ -55,4 +55,3 @@ module "eks_al2023" {
 # ~/.aws/config      to check SSO credential that is created temporarily
 # aws sts get-caller-identity --profile support-sso
 # aws sts get-caller-identity --profile developer-sso
-

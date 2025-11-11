@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod-data
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod-frontend
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod-backend
