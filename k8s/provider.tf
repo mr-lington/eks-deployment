@@ -2,7 +2,7 @@ data "terraform_remote_state" "infra" {
   backend = "s3"
   config = {
     bucket = "eks-statefile-bucket1"
-    key    = "cluster/terraform.tfstate"
+    key    = "clusterdeploy/terraform.tfstate"
     region = "eu-west-3"
     profile      = "Lington"
   }
