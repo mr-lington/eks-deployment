@@ -8,8 +8,8 @@ module "eks_al2023" {
   kubernetes_version = "1.33"
 
 
-    # Optional
-  endpoint_public_access = true     # This is needed to reach the kubernetes API from public access, that is accessinng kubectl from your laptop
+  # Optional
+  endpoint_public_access = true # This is needed to reach the kubernetes API from public access, that is accessinng kubectl from your laptop
 
   # EKS Addons
   addons = {

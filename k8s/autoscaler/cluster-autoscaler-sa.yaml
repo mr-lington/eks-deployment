@@ -4,4 +4,4 @@ metadata:
   name: cluster-autoscaler
   namespace: kube-system
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::<ACCOUNT_ID>:role/ClusterAutoscalerRole-<CLUSTER_NAME>
+    eks.amazonaws.com/role-arn: arn:aws:iam::468887949677:role/ClusterAutoscalerRole-staging-demo-eks

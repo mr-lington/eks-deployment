@@ -26,11 +26,11 @@ spec:
         - --v=4
         - --stderrthreshold=info
         - --cloud-provider=aws
-        - --cluster-name=<CLUSTER_NAME>
+        - --cluster-name=staging-demo-eks
         - --balance-similar-node-groups
         - --skip-nodes-with-system-pods=false
         - --skip-nodes-with-local-storage=false
-        - --node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/<CLUSTER_NAME>
+        - --node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/staging-demo-eks
         resources:
           requests:
             cpu: 100m
