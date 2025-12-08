@@ -1,3 +1,6 @@
+
+# When using IAM role to grant access to user on the k8s Cluster but we use SSO on this project
+
 # # DevOps admin - cluster admin permission
 # resource "aws_eks_access_entry" "devops_admin" {
 #   cluster_name  = module.eks_al2023.cluster_name

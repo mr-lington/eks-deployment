@@ -22,17 +22,17 @@ resource "aws_subnet" "private2" {
   }
 }
 
-resource "aws_subnet" "private3" {
-  vpc_id            = aws_vpc.vpc.id
-  cidr_block        = "10.0.64.0/19"
-  availability_zone = local.zone3
+# resource "aws_subnet" "private3" {
+#   vpc_id            = aws_vpc.vpc.id
+#   cidr_block        = "10.0.64.0/19"
+#   availability_zone = local.zone3
 
-  tags = {
-    Name                                                   = "${local.env}-private-${local.zone3}"
-    "kubernetes.io/role/internal-elb"                      = "1"
-    "kubernetes.io/cluster/${local.env}-${local.eks_name}" = "owned"
-  }
-}
+#   tags = {
+#     Name                                                   = "${local.env}-private-${local.zone3}"
+#     "kubernetes.io/role/internal-elb"                      = "1"
+#     "kubernetes.io/cluster/${local.env}-${local.eks_name}" = "owned"
+#   }
+# }
 
 resource "aws_subnet" "pub1" {
   vpc_id                  = aws_vpc.vpc.id
@@ -60,15 +60,15 @@ resource "aws_subnet" "pub2" {
   }
 }
 
-resource "aws_subnet" "pub3" {
-  vpc_id                  = aws_vpc.vpc.id
-  cidr_block              = "10.0.160.0/19"
-  availability_zone       = local.zone3
-  map_public_ip_on_launch = true
+# resource "aws_subnet" "pub3" {
+#   vpc_id                  = aws_vpc.vpc.id
+#   cidr_block              = "10.0.160.0/19"
+#   availability_zone       = local.zone3
+#   map_public_ip_on_launch = true
 
-  tags = {
-    Name                                                   = "${local.env}-public-${local.zone3}"
-    "kubernetes.io/role/elb"                               = "1"
-    "kubernetes.io/cluster/${local.env}-${local.eks_name}" = "owned"
-  }
-}
+#   tags = {
+#     Name                                                   = "${local.env}-public-${local.zone3}"
+#     "kubernetes.io/role/elb"                               = "1"
+#     "kubernetes.io/cluster/${local.env}-${local.eks_name}" = "owned"
+#   }
+# }

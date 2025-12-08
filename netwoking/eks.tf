@@ -26,8 +26,8 @@ module "eks_al2023" {
   vpc_id = aws_vpc.vpc.id
   subnet_ids = [
     aws_subnet.private1.id,
-    aws_subnet.private2.id,
-    aws_subnet.private3.id
+    aws_subnet.private2.id
+    #aws_subnet.private3.id
   ]
 
 

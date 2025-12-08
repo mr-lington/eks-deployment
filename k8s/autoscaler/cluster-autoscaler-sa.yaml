@@ -1,7 +1,7 @@
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: cluster-autoscaler
-  namespace: kube-system
-  annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::468887949677:role/ClusterAutoscalerRole-staging-demo-eks
+# apiVersion: v1
+# kind: ServiceAccount
+# metadata:
+#   name: cluster-autoscaler
+#   namespace: kube-system
+#   annotations:
+#     eks.amazonaws.com/role-arn: arn:aws:iam::468887949677:role/ClusterAutoscalerRole-staging-demo-eks

@@ -53,3 +53,4 @@ aws s3api delete-bucket \
   --profile "$AWS_PROFILE"
 
 echo "Bucket $BUCKET_NAME deleted successfully."
+
