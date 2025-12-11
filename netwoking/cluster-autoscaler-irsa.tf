@@ -77,7 +77,7 @@ resource "helm_release" "metrics_server" {
   chart      = "metrics-server"
   namespace  = "kube-system"
 
-  # Ensure Helm waits for resources to be ready (optional but nice)
+  # # Ensure Helm waits for resources to be ready (optional but nice)
   wait    = true
   timeout = 300
 
@@ -128,7 +128,7 @@ EOF
   ]
 
   depends_on = [
-    #module.eks_al2023,
+    module.eks_al2023,
     helm_release.metrics_server,
     aws_eks_pod_identity_association.cluster_autoscaler,
   ]

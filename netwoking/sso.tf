@@ -1,30 +1,22 @@
-
-############################################
 # SSO → EKS using existing Permission Sets
 # Assumes:
 # - Permission sets exist: AdministratorAccess, PowerUserAccess, ReadOnlyAccess
 # - Groups exist: Admin, Developers, Support
 # - Groups are assigned those permission sets in IAM Identity Center
-############################################
-
 data "aws_caller_identity" "current" {}
 
-##########################################################
+
 # Role name prefixes (from existing Permission Sets)
 # AWS automatically creates IAM roles:
 #   AWSReservedSSO_<PermissionSetName>_<random>
-##########################################################
-
 locals {
   admin_role_prefix     = "AWSReservedSSO_AdministratorAccess_"
   developer_role_prefix = "AWSReservedSSO_PowerUserAccess_"
   support_role_prefix   = "AWSReservedSSO_ReadOnlyAccess_"
 }
 
-##########################################################
-# Discover actual IAM role names via AWS CLI (external)
-##########################################################
 
+# Discover actual IAM role names via AWS CLI (external)
 data "external" "admin_role_lookup" {
   program = ["bash", "-lc", <<-EOF
     set -euo pipefail
@@ -73,10 +65,8 @@ data "external" "support_role_lookup" {
   ]
 }
 
-##########################################################
-# Turn discovered names into IAM Role data sources
-##########################################################
 
+# Turn discovered names into IAM Role data sources
 data "aws_iam_role" "sso_admin_role" {
   count = data.external.admin_role_lookup.result.name != "" ? 1 : 0
   name  = data.external.admin_role_lookup.result.name
@@ -92,10 +82,8 @@ data "aws_iam_role" "sso_support_role" {
   name  = data.external.support_role_lookup.result.name
 }
 
-##########################################################
 # Grant EKS access using the existing SSO IAM roles
 # Provider alias aws.eks is defined in 3-provider.tf
-##########################################################
 
 # Admins → full cluster admin
 resource "aws_eks_access_entry" "sso_admin" {

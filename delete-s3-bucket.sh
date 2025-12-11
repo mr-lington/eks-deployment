@@ -9,7 +9,7 @@ terraform destroy -auto-approve
 # Using the same variables as ones used for creation
 BUCKET_NAME="eks-statefile-bucket1"
 AWS_REGION="eu-west-3"
-AWS_PROFILE="Lington"
+AWS_PROFILE="lington"
 
 echo "Deleting all objects in $BUCKET_NAME. This process is irreversible..."
 

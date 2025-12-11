@@ -1,7 +1,6 @@
-
 variable "aws_profile" {
   type    = string
-  default = "Lington"
+  default = "lington"
 }
 
 variable "sso_home_region" {
@@ -35,16 +34,14 @@ variable "developer_namespaces" {
   default = ["prod-backend", "prod-frontend", "prod-data"]
 }
 
-# HELM PROVIDER
+# HELM PROVIDER (Helm v2 syntax)
 provider "helm" {
-  kubernetes = {
+  kubernetes {
     config_path = pathexpand("~/.kube/config")
-    #config_context = "arn:aws:eks:eu-west-3:468887949677:cluster/staging-demo-eks"
+    # config_context = "arn:aws:eks:eu-west-3:468887949677:cluster/staging-demo-eks"
   }
 }
 
-
-# Terraform + providers (root module)
 terraform {
   backend "s3" {
     bucket       = "eks-statefile-bucket1"
@@ -52,7 +49,7 @@ terraform {
     key          = "cluster/terraform.tfstate"
     region       = "eu-west-3"
     encrypt      = true
-    profile      = "Lington"
+    profile      = "lington"
   }
 
   required_providers {
@@ -63,7 +60,7 @@ terraform {
 
     helm = {
       source  = "hashicorp/helm"
-      version = ">= 2.11.0"
+      version = "~> 2.12.1" # ⬅️ IMPORTANT: v2, not v3
     }
 
     external = {

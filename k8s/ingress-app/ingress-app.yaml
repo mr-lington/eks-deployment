@@ -1,0 +1,156 @@
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: nginx-demo
+#   namespace: prod-frontend
+#   labels:
+#     app: nginx-demo
+# spec:
+#   replicas: 2
+#   selector:
+#     matchLabels:
+#       app: nginx-demo
+#   template:
+#     metadata:
+#       labels:
+#         app: nginx-demo
+#     spec:
+#       containers:
+#         - name: nginx
+#           image: nginx:stable
+#           ports:
+#             - containerPort: 80
+#           resources:
+#             requests:
+#               cpu: "100m"
+#               memory: "64Mi"
+#             limits:
+#               cpu: "500m"
+#               memory: "256Mi"
+
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: nginx-demo-svc
+#   namespace: prod-frontend
+# spec:
+#   type: ClusterIP   # REQUIRED for Ingress
+#   selector:
+#     app: nginx-demo
+#   ports:
+#     - port: 80
+#       targetPort: 80
+
+# ---
+# # ALB Ingress for nginx
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: nginx-demo-ingress
+#   namespace: prod-frontend
+#   annotations:
+#     alb.ingress.kubernetes.io/scheme: internet-facing
+#     alb.ingress.kubernetes.io/target-type: ip
+#     alb.ingress.kubernetes.io/healthcheck-path: /
+# spec:
+#   ingressClassName: alb
+#   rules:
+#     - host: nginx.example.com   # CHANGE or REMOVE this
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: nginx-demo-svc
+#                 port:
+#                   number: 80
+
+
+
+
+# USING DOMAIN NAME AND CERTIFICATE
+#aws ingress using dns name and certicate
+# 1. create certicate(Click Create DNS records in Route 53)
+# 2. create ingress yaml file with cert ARN 
+# 3. apply your yaml file 
+# 4. create a record in route 53 to map the domain name to the loadbalancer DNS name
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-demo
+  namespace: prod-frontend
+  labels:
+    app: nginx-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-demo
+  template:
+    metadata:
+      labels:
+        app: nginx-demo
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:stable
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-demo-svc
+  namespace: prod-frontend
+spec:
+  type: ClusterIP   # REQUIRED for Ingress
+  selector:
+    app: nginx-demo
+  ports:
+    - port: 80
+      targetPort: 80
+
+---
+# ALB Ingress for nginx
+# Supported annotations
+# https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.7/guide/ingress/annotations/
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-demo-ingress
+  namespace: prod-frontend
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:eu-west-3:468887949677:certificate/46ec04e5-378d-4007-886f-182a379adb28
+spec:
+  ingressClassName: alb
+  rules:
+    - host: 3ureka.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-demo-svc
+                port:
+                  number: 80
+    
+                                                                          
+    

@@ -4,13 +4,13 @@ data "terraform_remote_state" "infra" {
     bucket = "eks-statefile-bucket1"
     key    = "cluster/terraform.tfstate"
     region = "eu-west-3"
-    profile      = "Lington"
+    profile      = "lington"
   }
 }
 
 provider "aws" {
   region  = "eu-west-3"
-  profile = "Lington"
+  profile = "lington"
 }
 
 data "aws_eks_cluster_auth" "eks" {

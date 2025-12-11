@@ -4,7 +4,7 @@
 # === Config ===
 BUCKET_NAME="eks-statefile-bucket1"
 AWS_REGION="eu-west-3"
-AWS_PROFILE="Lington"
+AWS_PROFILE="lington"
 CLUSTER_NAME="staging-demo-eks"   # must match your EKS cluster name
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -53,7 +53,7 @@ aws s3api put-bucket-versioning \
 echo ">> Running Terraform for networking + EKS..."
 cd "$ROOT_DIR/netwoking"
 
-terraform init
+terraform init -upgrade
 terraform fmt
 terraform validate
 terraform apply -auto-approve
@@ -76,7 +76,8 @@ echo ">> Applying Namespaces..."
 kubectl apply -f "$ROOT_DIR/k8s/namespace/"
 
 echo ">> Deploying Nginx demo app + Service..."
-kubectl apply -f "$ROOT_DIR/k8s/app/"
+#kubectl apply -f "$ROOT_DIR/k8s/app/"
+kubectl apply -f "$ROOT_DIR/k8s/ingress-app/"
 
 echo ">> Applying HPA..."
 kubectl apply -f "$ROOT_DIR/k8s/hpa/"
