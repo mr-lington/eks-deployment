@@ -388,7 +388,7 @@ resource "helm_release" "aws_lbc" {
   }
 
   depends_on = [
-    helm_release.cluster_autoscaler,
-    aws_eks_pod_identity_association.aws_lbc
+    helm_release.cluster_autoscaler
+    #aws_eks_pod_identity_association.aws_lbc
   ]
 }

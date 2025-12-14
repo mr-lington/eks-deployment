@@ -1,0 +1,170 @@
+# apiVersion: v1
+# kind: ServiceAccount
+# metadata:
+#   name: myapp
+#   namespace: prod-frontend
+
+
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: myapp
+#   namespace: prod-frontend
+# spec:
+#   replicas: 2
+#   selector:
+#     matchLabels:
+#       app: myapp
+#   template:
+#     metadata:
+#       labels:
+#         app: myapp
+#     spec:
+#       serviceAccountName: myapp
+#       imagePullSecrets:
+#         - name: dockercded
+#       volumes:
+#         - name: db-secrets-vol
+#           csi:
+#             driver: secrets-store.csi.k8s.io
+#             readOnly: true
+#             volumeAttributes:
+#               secretProviderClass: db-secrets
+#       containers:
+#         - name: myapp
+#           image: lington/lingtonpuffyapp:backendwithMYSqlDB
+#           ports:
+#             - containerPort: 8080
+#           volumeMounts:
+#             - name: db-secrets-vol
+#               mountPath: /mnt/secrets
+#               readOnly: true
+
+
+############################################
+# 1️⃣ Namespace (safe even if it already exists)
+############################################
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod-frontend
+
+---
+############################################
+# 2️⃣ ServiceAccount (Pod Identity target)
+############################################
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: myapp
+  namespace: prod-frontend
+
+---
+############################################
+# 3️⃣ SecretProviderClass (AWS Secrets Manager)
+############################################
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: db-secrets
+  namespace: prod-frontend
+spec:
+  provider: aws
+  parameters:
+    objects: |
+      - objectName: "database"
+        objectType: "secretsmanager"
+        jmesPath:
+          - path: MYSQL_USER
+            objectAlias: MYSQL_USER
+          - path: MYSQL_PASS
+            objectAlias: MYSQL_PASS
+          - path: MYSQL_URL
+            objectAlias: MYSQL_URL
+
+  secretObjects:
+    - secretName: db-secrets
+      type: Opaque
+      data:
+        - objectName: MYSQL_USER
+          key: MYSQL_USER
+        - objectName: MYSQL_PASS
+          key: MYSQL_PASS
+        - objectName: MYSQL_URL
+          key: MYSQL_URL
+
+---
+############################################
+# 4️⃣ Deployment
+############################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+  namespace: prod-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      serviceAccountName: myapp
+
+      imagePullSecrets:
+        - name: dockercded
+
+      volumes:
+        - name: db-secrets-vol
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: db-secrets
+
+      containers:
+        - name: myapp
+          image: lington/lingtonpuffyapp:backendwithMYSqlDB
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: db-secrets-vol
+              mountPath: /mnt/secrets
+              readOnly: true
+          env:
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: MYSQL_USER
+            - name: MYSQL_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: MYSQL_PASS
+            - name: MYSQL_URL
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: MYSQL_URL
+
+---
+############################################
+# 5️⃣ Service
+############################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-svc
+  namespace: prod-frontend
+spec:
+  selector:
+    app: myapp
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080

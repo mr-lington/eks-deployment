@@ -34,13 +34,20 @@ variable "developer_namespaces" {
   default = ["prod-backend", "prod-frontend", "prod-data"]
 }
 
-# HELM PROVIDER (Helm v2 syntax)
-provider "helm" {
-  kubernetes {
-    config_path = pathexpand("~/.kube/config")
-    # config_context = "arn:aws:eks:eu-west-3:468887949677:cluster/staging-demo-eks"
-  }
+provider "kubernetes" {
+  host                   = data.aws_eks_cluster.eks.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.eks.token
 }
+
+
+# # HELM PROVIDER (Helm v2 syntax)
+# provider "helm" {
+#   kubernetes {
+#     config_path = pathexpand("~/.kube/config")
+#     # config_context = "arn:aws:eks:eu-west-3:468887949677:cluster/staging-demo-eks"
+#   }
+# }
 
 terraform {
   backend "s3" {

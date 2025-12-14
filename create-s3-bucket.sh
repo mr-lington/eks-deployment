@@ -13,13 +13,13 @@ KMS_ALIAS_NAME="alias/eks/$CLUSTER_NAME"
 echo ">> Using profile: $AWS_PROFILE, region: $AWS_REGION"
 echo ">> Script root: $ROOT_DIR"
 
-# AWS SSO Login
-echo ">> Logging into AWS SSO for profile: $AWS_PROFILE"
-aws sso logout >/dev/null 2>&1 || true
-aws sso login --profile "$AWS_PROFILE"
+# # AWS SSO Login
+# echo ">> Logging into AWS SSO for profile: $AWS_PROFILE"
+# aws sso logout >/dev/null 2>&1 || true
+# aws sso login --profile "$AWS_PROFILE"
 
-export AWS_PROFILE="$AWS_PROFILE"
-export AWS_SDK_LOAD_CONFIG=1
+# export AWS_PROFILE="$AWS_PROFILE"
+# export AWS_SDK_LOAD_CONFIG=1
 
 # Clean up existing KMS alias (if any exist)
 echo ">> Checking/removing existing KMS alias (if present): $KMS_ALIAS_NAME"
@@ -53,7 +53,7 @@ aws s3api put-bucket-versioning \
 echo ">> Running Terraform for networking + EKS..."
 cd "$ROOT_DIR/netwoking"
 
-terraform init -upgrade
+terraform init #-upgrade
 terraform fmt
 terraform validate
 terraform apply -auto-approve
@@ -67,9 +67,19 @@ aws eks update-kubeconfig \
   --name "$CLUSTER_NAME" \
   --profile "$AWS_PROFILE"
 
+# create docker pull secret credentials
+kubectl create secret docker-registry dockercded \
+  --docker-username=lington \
+  --docker-password='@Darboy123' \
+  --docker-server=https://index.docker.io/v1/ \
+  
+
+
 echo ">> Verifying cluster connectivity..."
 kubectl cluster-info
 kubectl get nodes
+
+
 
 # Apply Kubernetes manifests
 echo ">> Applying Namespaces..."
@@ -77,7 +87,10 @@ kubectl apply -f "$ROOT_DIR/k8s/namespace/"
 
 echo ">> Deploying Nginx demo app + Service..."
 #kubectl apply -f "$ROOT_DIR/k8s/app/"
-kubectl apply -f "$ROOT_DIR/k8s/ingress-app/"
+# kubectl apply -f "$ROOT_DIR/k8s/ingress-app/"
+# #kubectl apply -f "$ROOT_DIR/k8s/cert-nginx-ingres/"  #using nginx external ingress controller
+# kubectl apply -f "$ROOT_DIR/k8s/ebs-statefulset/"  # to deploy statefulset
+# kubectl apply -f "$ROOT_DIR/k8s/efs-deployment/"   # for deployment of efs
 
 echo ">> Applying HPA..."
 kubectl apply -f "$ROOT_DIR/k8s/hpa/"

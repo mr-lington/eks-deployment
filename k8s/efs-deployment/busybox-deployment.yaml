@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: busybox-demo
+  namespace: prod-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: busybox-demo
+  template:
+    metadata:
+      labels:
+        app: busybox-demo
+    spec:
+      containers:
+        - name: busybox
+          image: busybox:1.36
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              while true; do
+                echo "$(date -u) - Hello from $(hostname)" >> /data/out.txt;
+                sleep 5;
+              done
+          volumeMounts:
+            - name: efs-storage
+              mountPath: /data
+      volumes:
+        - name: efs-storage
+          persistentVolumeClaim:
+            claimName: busybox-pvc

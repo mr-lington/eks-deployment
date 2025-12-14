@@ -1,0 +1,72 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-demo
+  namespace: prod-frontend
+  labels:
+    app: nginx-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-demo
+  template:
+    metadata:
+      labels:
+        app: nginx-demo
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:stable
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-demo-svc
+  namespace: prod-frontend
+spec:
+  type: ClusterIP   # REQUIRED for Ingress
+  selector:
+    app: nginx-demo
+  ports:
+    - port: 80
+      targetPort: 80
+
+# Ingress + TLS + cert-manager
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-demo-ingress
+  namespace: prod-frontend
+  annotations:
+    cert-manager.io/cluster-issuer: http-production
+spec:
+  ingressClassName: external-nginx
+  rules:
+    - host: nginx.3ureka.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-demo-svc
+                port:
+                  number: 80
+
+  tls:
+    - hosts:
+        - nginx.3ureka.com
+      secretName: 3ureka-com

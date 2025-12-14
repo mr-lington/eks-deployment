@@ -2,7 +2,7 @@
 
 echo "deleting cluster"
 cd netwoking
-terraform init 
+#terraform init 
 terraform destroy -auto-approve
 
 

@@ -70,30 +70,6 @@ resource "aws_eks_pod_identity_association" "cluster_autoscaler" {
   role_arn        = aws_iam_role.cluster_autoscaler.arn
 }
 
-# Deploy metric server using helm 
-resource "helm_release" "metrics_server" {
-  name       = "metrics-server"
-  repository = "https://kubernetes-sigs.github.io/metrics-server/"
-  chart      = "metrics-server"
-  namespace  = "kube-system"
-
-  # # Ensure Helm waits for resources to be ready (optional but nice)
-  wait    = true
-  timeout = 300
-
-  # Important: make sure cluster exists before this runs
-  depends_on = [
-    module.eks_al2023
-  ]
-
-  # Use YAML values instead of set {} blocks
-  values = [<<EOF
-args:
-  - --kubelet-insecure-tls
-  - --kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP
-EOF
-  ]
-}
 
 # Deploy CA using helm
 resource "helm_release" "cluster_autoscaler" {
@@ -128,9 +104,9 @@ EOF
   ]
 
   depends_on = [
-    module.eks_al2023,
-    helm_release.metrics_server,
-    aws_eks_pod_identity_association.cluster_autoscaler,
+    #module.eks_al2023,
+    helm_release.metrics_server
+    #aws_eks_pod_identity_association.cluster_autoscaler,
   ]
 }
 

@@ -1,0 +1,61 @@
+# # aws comes with gp2 by default, so you only need this when you want to create a storage like gp3 or others
+# apiVersion: storage.k8s.io/v1
+# kind: StorageClass
+# metadata:
+#   name: gp3
+# provisioner: ebs.csi.aws.com
+# volumeBindingMode: WaitForFirstConsumer
+# allowVolumeExpansion: true
+# parameters:
+#   type: gp3
+
+---
+# Headless Service (REQUIRED for StatefulSet)
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: prod-data
+spec:
+  clusterIP: None
+  selector:
+    app: redis
+  ports:
+    - port: 6379
+
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: prod-data
+spec:
+  serviceName: redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - name: data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: gp2
+        resources:
+          requests:
+            storage: 1Gi
