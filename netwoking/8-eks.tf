@@ -37,7 +37,7 @@ module "eks_al2023" {
       ami_type       = "AL2023_x86_64_STANDARD"
       min_size       = 1
       max_size       = 5
-      desired_size   = 2
+      desired_size   = 1
 
       tags = {
         "k8s.io/cluster-autoscaler/enabled"                           = "true"
@@ -52,23 +52,3 @@ module "eks_al2023" {
   }
 }
 
-
-# aws configure sso
-# aws sso logout || true
-# aws sso login --profile Lington
-# aws eks update-kubeconfig --name staging-demo-eks --region eu-west-3 --profile Lington
-# aws eks update-kubeconfig --region eu-west-3 --name staging-demo-eks --profile support-sso
-# aws eks update-kubeconfig --region eu-west-3 --name staging-demo-eks --profile developer-sso
-# kubectl get nodes
-# ~/.aws/config      to check SSO credential that is created temporarily
-# aws sts get-caller-identity --profile support-sso
-# aws sts get-caller-identity --profile developer-sso
-
-
-# steps to install metric server
-# kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-# kubectl get deployment metrics-server -n kube-system
-# kubectl top nodes
-
-
-# order to apply the autoscaler

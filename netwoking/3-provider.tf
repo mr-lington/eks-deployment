@@ -41,14 +41,6 @@ provider "kubernetes" {
 }
 
 
-# # HELM PROVIDER (Helm v2 syntax)
-# provider "helm" {
-#   kubernetes {
-#     config_path = pathexpand("~/.kube/config")
-#     # config_context = "arn:aws:eks:eu-west-3:468887949677:cluster/staging-demo-eks"
-#   }
-# }
-
 terraform {
   backend "s3" {
     bucket       = "eks-statefile-bucket1"

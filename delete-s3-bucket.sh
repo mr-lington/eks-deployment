@@ -10,6 +10,7 @@ terraform destroy -auto-approve
 BUCKET_NAME="eks-statefile-bucket1"
 AWS_REGION="eu-west-3"
 AWS_PROFILE="lington"
+CLUSTER_NAME="staging-demo-eks"
 
 echo "Deleting all objects in $BUCKET_NAME. This process is irreversible..."
 

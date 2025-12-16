@@ -13,13 +13,13 @@ KMS_ALIAS_NAME="alias/eks/$CLUSTER_NAME"
 echo ">> Using profile: $AWS_PROFILE, region: $AWS_REGION"
 echo ">> Script root: $ROOT_DIR"
 
-# # AWS SSO Login
-# echo ">> Logging into AWS SSO for profile: $AWS_PROFILE"
-# aws sso logout >/dev/null 2>&1 || true
-# aws sso login --profile "$AWS_PROFILE"
+# AWS SSO Login
+echo ">> Logging into AWS SSO for profile: $AWS_PROFILE"
+aws sso logout >/dev/null 2>&1 || true
+aws sso login --profile "$AWS_PROFILE"
 
-# export AWS_PROFILE="$AWS_PROFILE"
-# export AWS_SDK_LOAD_CONFIG=1
+export AWS_PROFILE="$AWS_PROFILE"
+export AWS_SDK_LOAD_CONFIG=1
 
 # Clean up existing KMS alias (if any exist)
 echo ">> Checking/removing existing KMS alias (if present): $KMS_ALIAS_NAME"
@@ -72,7 +72,7 @@ kubectl create secret docker-registry dockercded \
   --docker-username=lington \
   --docker-password='@Darboy123' \
   --docker-server=https://index.docker.io/v1/ \
-  
+  -n prod-frontend
 
 
 echo ">> Verifying cluster connectivity..."
@@ -86,11 +86,31 @@ echo ">> Applying Namespaces..."
 kubectl apply -f "$ROOT_DIR/k8s/namespace/"
 
 echo ">> Deploying Nginx demo app + Service..."
-#kubectl apply -f "$ROOT_DIR/k8s/app/"
-# kubectl apply -f "$ROOT_DIR/k8s/ingress-app/"
-# #kubectl apply -f "$ROOT_DIR/k8s/cert-nginx-ingres/"  #using nginx external ingress controller
-# kubectl apply -f "$ROOT_DIR/k8s/ebs-statefulset/"  # to deploy statefulset
-# kubectl apply -f "$ROOT_DIR/k8s/efs-deployment/"   # for deployment of efs
+kubectl apply -f "$ROOT_DIR/k8s/app/"
+kubectl apply -f "$ROOT_DIR/k8s/ingress-app/"
+kubectl apply -f "$ROOT_DIR/k8s/cert-nginx-ingres/"  #using nginx external ingress controller
+kubectl apply -f "$ROOT_DIR/k8s/ebs-statefulset/"  # to deploy statefulset
+kubectl apply -f "$ROOT_DIR/k8s/efs-deployment/"   # for deployment of efs
+kubectl apply -f "$ROOT_DIR/k8s/sec-manager-deploy/"   # for deployment of secret manager
 
 echo ">> Applying HPA..."
 kubectl apply -f "$ROOT_DIR/k8s/hpa/"
+
+
+
+
+# aws configure sso
+# aws sso logout || true
+# aws sso login --profile Lington
+# aws eks update-kubeconfig --name staging-demo-eks --region eu-west-3 --profile Lington
+# aws eks update-kubeconfig --region eu-west-3 --name staging-demo-eks --profile support-sso
+# aws eks update-kubeconfig --region eu-west-3 --name staging-demo-eks --profile developer-sso
+# kubectl get nodes
+# ~/.aws/config      to check SSO credential that is created temporarily
+# aws sts get-caller-identity --profile support-sso
+# aws sts get-caller-identity --profile developer-sso
+
+
+# steps to install metric server
+# kubectl get deployment metrics-server -n kube-system
+# kubectl top nodes

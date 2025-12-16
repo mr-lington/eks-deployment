@@ -1,11 +1,8 @@
-############################################
-# EFS + EFS CSI Driver (Pod Identity) + StorageClass
-# Works with your pattern: module.eks_al2023.cluster_name
-############################################
 
-############################################
+# EFS + EFS CSI Driver (Pod Identity) + StorageClass
+
+
 # EFS filesystem
-############################################
 resource "aws_efs_file_system" "eks" {
   creation_token   = "${module.eks_al2023.cluster_name}-efs"
   performance_mode = "generalPurpose"
@@ -19,9 +16,7 @@ resource "aws_efs_file_system" "eks" {
   }
 }
 
-############################################
 # Security Group for EFS (allow NFS 2049 from EKS nodes)
-############################################
 resource "aws_security_group" "efs" {
   name        = "${module.eks_al2023.cluster_name}-efs-sg"
   description = "Allow NFS from EKS nodes"
@@ -53,10 +48,7 @@ resource "aws_security_group_rule" "efs_egress_all" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
-############################################
 # EFS Mount Targets (private subnets)
-# Change these subnet refs if your names differ
-############################################
 resource "aws_efs_mount_target" "zone_a" {
   file_system_id  = aws_efs_file_system.eks.id
   subnet_id       = aws_subnet.private1.id
@@ -69,9 +61,7 @@ resource "aws_efs_mount_target" "zone_b" {
   security_groups = [aws_security_group.efs.id]
 }
 
-############################################
 # IAM Role for EFS CSI via Pod Identity
-############################################
 data "aws_iam_policy_document" "efs_csi_driver" {
   statement {
     effect = "Allow"
@@ -98,9 +88,7 @@ resource "aws_iam_role_policy_attachment" "efs_csi_driver" {
   role       = aws_iam_role.efs_csi_driver.name
 }
 
-############################################
 # Pod Identity association (service account -> IAM role)
-############################################
 resource "aws_eks_pod_identity_association" "efs_csi_driver" {
   cluster_name    = module.eks_al2023.cluster_name
   namespace       = "kube-system"
@@ -108,14 +96,12 @@ resource "aws_eks_pod_identity_association" "efs_csi_driver" {
   role_arn        = aws_iam_role.efs_csi_driver.arn
 }
 
-############################################
-# EFS CSI Driver Addon (recommended)
-############################################
+# EFS CSI Driver Addon
 resource "aws_eks_addon" "efs_csi_driver" {
   cluster_name = module.eks_al2023.cluster_name
   addon_name   = "aws-efs-csi-driver"
 
-  # Optional: pin version if you want, otherwise let AWS select compatible one
+  # Optional: pin version if you want, otherwise let AWS select compatible one, here we let aws handle that
   # addon_version = "vX.Y.Z-eksbuild.N"
 
   depends_on = [
@@ -126,9 +112,7 @@ resource "aws_eks_addon" "efs_csi_driver" {
   ]
 }
 
-############################################
 # Kubernetes StorageClass for EFS (dynamic provisioning via Access Points)
-############################################
 resource "kubernetes_storage_class_v1" "efs" {
   metadata {
     name = "efs"
