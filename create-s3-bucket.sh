@@ -69,8 +69,8 @@ aws eks update-kubeconfig \
 
 # create docker pull secret credentials
 kubectl create secret docker-registry dockercded \
-  --docker-username=lington \
-  --docker-password='@Darboy123' \
+  --docker-username=jfjfjkfjk \  # Never push your username and passwork to github
+  --docker-password='@JJJJJJJJJJ' \
   --docker-server=https://index.docker.io/v1/ \
   -n prod-frontend
 
