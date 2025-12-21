@@ -83,7 +83,7 @@ eks-deployment/
 │
 └── README.md
 ```
-# Infrastructure Deployment Flow – AWS EKS (Production)
+
 ## Remote State & Bootstrap
 
 - S3 backend used for Terraform remote state
@@ -140,10 +140,16 @@ Installed using Terraform + Helm:
 EBS CSI Driver
 - Block storage
 - Used for StatefulSets and single-pod persistence
+- ReadWriteOnce
+- Zonal storage
+
 EFS CSI Driver
-- Shared filesystem
+- Shared filesystem, Perfect for shared configs, uploads, logs
 - Multi-pod access
 - Demonstrates ReadWriteMany volumes
+  
+Both drivers coexist in the same cluster.
+
 ---
 
 ## Secrets Management (Production-Grade)
@@ -181,6 +187,50 @@ Lower operational overhead
 ---
 
 ## Troubleshooting & Debugging
+This project intentionally documents real failures and how they were fixed.
+
+---
+Pods Pending (Too many pods)
+
+Cause: Node capacity exhausted  
+Fix:
+- Increased node group size
+- Verified autoscaler tags
+- Checked CPU requests
+
+---
+Secrets CSI mount failed
+
+Error:
+
+An IAM role must be associated with service account
+
+Fix:
+- Created Kubernetes ServiceAccount
+- Associated IAM role via aws_eks_pod_identity_association
+- Ensured namespace existed before deployment
+
+---
+
+Subnet deletion failed on destroy
+
+Cause: ENIs, NAT gateways, EIPs still attached  
+
+Fix:
+- Proper destroy order
+- Explicit cleanup scripts
+- Avoided terraform destroy -target misuse
+
+---
+
+Kubernetes cluster unreachable
+
+Cause: Expired AWS SSO credentials  
+
+Fix:
+- aws sso login --profile lington
+---
+
 ### Cluster & Nodes
 ```bash
 kubectl get nodes
@@ -188,3 +238,97 @@ kubectl describe node <node-name>
 kubectl get pods -A -o wide
 kubectl get pods -A -o wide | awk '{print $8}' | sort | uniq -c
 ```
+### Pending Pods & Scheduling
+```bash
+kubectl get pods -A
+kubectl describe pod <pod-name> -n <namespace>
+kubectl get events -n <namespace> --sort-by=.metadata.creationTimestamp
+```
+### Cluster Autoscaler
+```bash
+kubectl get deployment -n kube-system
+kubectl logs -n kube-system deploy/cluster-autoscaler-aws-cluster-autoscaler
+```
+---
+### Metrics & HPA
+```bash
+kubectl top nodes
+kubectl top pods -n prod-frontend
+kubectl get hpa -A
+kubectl describe hpa <hpa-name>
+```
+---
+### Secrets Store CSI
+```bash
+kubectl get pods -n kube-system | grep secrets-store
+kubectl describe pod <pod-name> -n kube-system
+kubectl get secretproviderclass -A
+kubectl describe secretproviderclass db-secrets -n prod-frontend
+kubectl exec -it <pod> -n prod-frontend -- ls /mnt/secrets
+```
+---
+### Pod Identity
+```bash
+kubectl get sa -n prod-frontend
+kubectl describe sa myapp -n prod-frontend
+aws eks list-pod-identity-associations --cluster-name staging-demo-eks --region eu-west-3
+```
+---
+### Ingress & Load Balancer
+```bash
+kubectl get ingress -A
+kubectl describe ingress <ingress-name> -n <namespace>
+kubectl get pods -n kube-system | grep load-balancer
+aws elbv2 describe-load-balancers --region eu-west-3
+kubectl logs -n kube-system deploy/aws-load-balancer-controller
+```
+---
+### Storage (EBS / EFS)
+```bash
+kubectl get pvc -A
+kubectl describe pvc <pvc-name> -n <namespace>
+kubectl get pods -n kube-system | grep ebs
+kubectl get pods -n kube-system | grep efs
+```
+---
+### Terraform Recovery
+```bash
+terraform state list
+terraform destroy
+terraform destroy -target=<resource>
+```
+##  Key Learnings
+
+Autoscaling requires unschedulable pods, not just high CPU usage
+
+CSI drivers can fail silently without correct IAM permissions
+
+Pod Identity is cleaner and safer than IRSA
+
+Most EKS issues originate from IAM or networking misconfigurations
+
+Debugging skills are as important as deployment skills
+
+---
+
+## Why This Project Matters
+This project demonstrates:
+
+Real-world AWS & Kubernetes experience
+
+Strong troubleshooting and recovery skills
+
+Security-first infrastructure design
+
+Cost-aware engineering decisions
+
+Full infrastructure lifecycle ownership
+
+This is not a tutorial project — it is a production simulation.
+
+---
+
+## Contact
+Darlington Imade  
+DevOps / Cloud Engineer  
+GitHub: https://github.com/mr-lington
